@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            font-size: 14px;
+            background: #f5f8fa;
+        }
+
+        .container {
+
+            background: #f5f8fa;
+
+
+        }
+
+        .value {
+            text-align: center;
+            /* background: red; */
+            top: 8.2%;
+            width: 70px;
+            position: absolute;
+            font-weight: bold;
+            color: #da3030;
+        }
+
+        .date {
+            width: 100%;
+            height: 26px;
+            color: #a9aaab;
+            width: 100%;
+            padding: 0 5%;
+            background: #f5f8fa;
+            border-bottom: 1px solid #e8ebed;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .bonus {
+            box-sizing: border-box;
+            padding: 0 5%;
+            width: 100%;
+            background: white;
+            border-bottom: 1px solid #e8ebed;
+        }
+
+        .bonus-content {
+            display: flex;
+
+            padding: 18px 0;
+        }
+
+        .bonus-content-icon {
+            width: 71px;
+            height: 71px;
+            margin-right: 29px;
+        }
+
+        .bonus-content-intro {
+            flex: 1;
+
+        }
+
+        .bonus-value {
+            transform: translateY(175%);
+            width: 120px;
+            /* background: red; */
+        }
+
+        .bonus-value-none {
+            text-decoration: line-through;
+            font-size: 14px;
+            color: #5c5c5c;
+        }
+
+        .use {
+
+            margin: 0 0 9px 0;
+            width: 103px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 68%;
+            border: 1px solid #da3030;
+            color: #da3030;
+        }
+
+        .bonus-name {
+            color: black;
+            font-size: 15px;
+        }
+
+        .bonus-limit {
+            color: #da3030;
+            margin-top: 2px;
+        }
+
+        .bonus-time {
+            margin-top: 8px;
+            color: #5c5c5c;
+        }
+
+        .bonus-limit span,
+        .bonus-time span {
+            color: #adadad;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- <div class="box">
+            <div class="date">2018年8月15日</div>
+            <div class="bonus">
+                <div class="bonus-content">
+                    <img class="bonus-content-icon" src="./img/onedollar.png"></img>
+                    <div class="bonus-content-intro">
+                        <div class="bonus-name">圣诞鸟商城1元优惠券</div>
+                        <div class="bonus-limit"><span>使用限制：</span>满100元使用</div>
+                        <div class="bonus-time"><span>使用期限：</span>2018.08.08-2018.08.08</div>
+                    </div>
+                </div>
+                <div class="use">立即使用</div>
+            </div>
+        </div> -->
+
+    </div>
+    <script src="./jquery.js"></script>
+    <script src="./jweixin-1.3.2.js"></script>
+    <script>
+        $(document).ready(function () {
+            //检测
+            function ready() {
+                console.log(window._wxjs_environment === 'miniprogram')
+            }
+            if (!window.WeixinJSBridge || !WeixinJSBridge.invoke) {
+                document.addEventListener('WeixinJSBridgeReady', ready, false);
+            } else {
+                ready();
+            }
+            //请求用户的卡券数据
+            function pickData(uid) {
+                $.ajax({
+                    url: 'http://wds.yfway.com/wds-test/index.php?s=/Home/Api/action',
+                    type: 'get',
+                    dataType: 'jsonp',
+                    jsonpCallback: 'successCallback',
+                    data: { func: 'get-user-all-prize', user_id: uid },
+                    success: function (res) {
+                        console.log(res);
+                        let dom = '<div><img src=""/></div>';
+                        for (var item in res) {
+                            console.log(res[item])
+                            console.log(item)
+                            let data = item.substring(0, 4) + '年' + item.substring(4, 6) + '月' + item.substring(6, 8) + '日';
+
+                            dom += `<div class="date">` + data + `</div>`
+                            for (let i = 0; i < res[item].length; i++) {
+                                console.log(res[item][i])
+                                if (res[item][i].prize_type == 3) {
+
+                                    dom += `<div class="box">
+    
+    <div class="bonus">
+        <div class="bonus-content">
+            <div style="position:relative;">
+                <div class="value">`+ res[item][i].price + `元</div>
+                <img class="bonus-content-icon" src="`+ res[item][i].cover + `"></img>
+            </div>
+            
+            <div class="bonus-content-intro">
+                <div class="bonus-name">`+ res[item][i].name + `</div>
+                <div class="bonus-limit"><span>使用限制：</span>`+ res[item][i].message + `</div>
+                <div class="bonus-time"><span>使用期限：</span>2018.08.08-2018.08.08</div>
+            </div>
+        </div>
+        <div class="use type`+ res[item][i].prize_type + `">立即使用</div>
+    </div>
+</div>`;
+                                } else if (res[item][i].prize_type == 1) {
+                                    dom += `<div class="box">
+    
+    <div class="bonus">
+        <div class="bonus-content" style="padding-bottom:0px;">
+            <div style="position:relative;">
+                
+                <img class="bonus-content-icon" src="`+ res[item][i].cover + `"></img>
+            </div>
+            
+            <div class="bonus-content-intro" >
+                <div class="bonus-name">`+ res[item][i].name + `</div>
+                <div class="bonus-limit">`+ res[item][i].nickname + `</div>
+                
+                <div class="bonus-value"><span style="color:#E05959;font-size:16px;font-weight:bold;">￥`+ res[item][i].price + `</span><span class="bonus-value-none">￥` + res[item][i].good_price + `</span></div>
+                
+            </div>
+        </div>
+        <div class="use type`+ res[item][i].prize_type + `" id="` + res[item][i].good_id + `" >立即使用</div>
+    </div>
+</div>`;
+                                } else {
+                                    dom += `<div class="box">
+    
+    <div class="bonus">
+        <div class="bonus-content">
+            <div style="position:relative;">
+                <div class="value">`+ res[item][i].price + `元</div>
+                <img class="bonus-content-icon" src="`+ res[item][i].cover + `"></img>
+            </div>
+            
+            <div class="bonus-content-intro">
+                <div class="bonus-name">`+ res[item][i].name + `</div>
+                <div class="bonus-limit">`+ res[item][i].nickname + `</div>
+                <div class="bonus-value">可以抵消`+ res[item][i].price + `元</div>
+            </div>
+        </div>
+        <div class="use type`+ res[item][i].prize_type + ` " >立即使用</div>
+    </div>
+</div>`;
+                                }
+                            }
+                            //                 
+                        }
+
+                        $('.container').html(dom);
+
+                    }
+                });
+            }
+
+            // console.log('1111');
+            function nav(data) {
+                console.log('1');
+                console.log($(this).attr('id'));
+            }
+
+            console.log('请求');
+            pickData(138701);
+
+
+            //动态类名需要谨慎
+            $('.container').on('click', '.use', {}, function () {
+                // console.log('1');
+                let flag = $(this).attr('class').indexOf('type1');
+                console.log(flag);
+                if (flag != -1) {
+                    let id = $(this).attr('id');
+                    wx.miniProgram.navigateTo({ url: '/pages/indexdetail/indextail?id=' + id });
+                    wx.miniProgram.postMessage({ id: id })
+                } else {
+                    wx.miniProgram.navigateTo({ url: '/pages/index/index' })
+                }
+                // wx.miniProgram.postMessage({ data: '12' })
+            })
+        });
+    </script>
+</body>
+
+</html>
